@@ -1,7 +1,8 @@
+import os
+import sys
 import asyncio
 import logging
-import sys
-import os
+
 from dotenv import load_dotenv
 
 from aiogram import Bot, Dispatcher, Router, types
@@ -12,11 +13,9 @@ from aiogram.utils.markdown import hbold
 
 from RAG.rag import RAG
 
-# Bot token can be obtained via https://t.me/BotFather
 load_dotenv()
-TOKEN = os.environ['TELEGRAM_API_TOKEN']
+TOKEN = os.getenv('TELEGRAM_API_TOKEN')
 
-# All handlers should be attached to the Router (or Dispatcher)
 dp = Dispatcher()
 
 
@@ -34,7 +33,6 @@ async def main_handler(message: Message, bot: Bot) -> None:
     """
     By default, message handler will handle all message types (like a text, photo, sticker etc.)
     """
-    # try:
     await message.answer(f'Запускаю обработку вопроса: <b>{message.text}</b>')
     if message.text is not None and message.from_user is not None:
         rag = RAG()
@@ -42,14 +40,10 @@ async def main_handler(message: Message, bot: Bot) -> None:
         await message.answer(f'<b>Ответ</b>:\n{response}')
     else:
         await message.answer('Не могу обработать такой формат запроса')
-    # except Exception as error:
-    #     await message.answer("Возникла ошибка... Кажется, Вам придется идти читать документ самим :(")
 
 
 async def main() -> None:
-    # Initialize Bot instance with a default parse mode which will be passed to all API calls
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
-    # And the run events dispatching
     await dp.start_polling(bot)
 
 

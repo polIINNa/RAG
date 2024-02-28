@@ -1,19 +1,17 @@
 from typing import List
-from abc import ABC, abstractmethod
-from aiogram import Bot
-
-from langchain.embeddings import SentenceTransformerEmbeddings
-from llama_index.legacy.service_context import ServiceContext
-from llama_index.legacy.node_parser import SentenceSplitter
-from llama_index.legacy.indices import VectorStoreIndex
-from llama_index.legacy.retrievers import RecursiveRetriever
-from llama_index.legacy.schema import TextNode, IndexNode
-
+from pathlib import Path
 
 import chromadb
+from aiogram import Bot
+from llama_index.legacy.indices import VectorStoreIndex
+from llama_index.legacy.schema import TextNode, IndexNode
+from llama_index.legacy.node_parser import SentenceSplitter
+from llama_index.legacy.retrievers import RecursiveRetriever
+from llama_index.legacy.service_context import ServiceContext
+from langchain.embeddings import SentenceTransformerEmbeddings
+from llama_index.legacy.response_synthesizers import get_response_synthesizer, ResponseMode
 
 from RAG.llm_ident import giga_llama_llm, giga_langchain_llm
-from llama_index.legacy.response_synthesizers import get_response_synthesizer, ResponseMode
 from RAG.prompts import qa_template, refine_template, program_name_template
 
 
@@ -27,7 +25,8 @@ class RAG:
                                                               response_mode=ResponseMode.COMPACT,
                                                               text_qa_template=qa_template,
                                                               refine_template=refine_template)
-        self._db = chromadb.PersistentClient(path="/Users/21109090/PycharmProjects/telegram_bot_RAG/RAG/gospodderzka_db")
+        chromadb_path = Path(__file__).parent / 'gospodderzka_db'
+        self._db = chromadb.PersistentClient(path=str(chromadb_path))
         self._chroma_collection = self._db.get_collection(name="main")
 
     @staticmethod

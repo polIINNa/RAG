@@ -1,26 +1,23 @@
-from llama_index.legacy.readers import SimpleDirectoryReader
-from llama_index.legacy.node_parser import SentenceSplitter
-
-from langchain.embeddings import SentenceTransformerEmbeddings
-from llama_index.legacy import ServiceContext
-from RAG.llm_ident import giga_llama_llm
-from llama_index.legacy.storage import StorageContext
-from llama_index.legacy.indices import VectorStoreIndex
-from llama_index.legacy.vector_stores import ChromaVectorStore
-
-from llama_index.legacy.schema import Document
-import chromadb
-
 import os
-from bs4 import BeautifulSoup
 from typing import List
 
+import chromadb
+from bs4 import BeautifulSoup
+from llama_index.legacy import ServiceContext
+from llama_index.legacy.schema import Document
+from llama_index.legacy.storage import StorageContext
+from llama_index.legacy.indices import VectorStoreIndex
+from llama_index.legacy.readers import SimpleDirectoryReader
+from llama_index.legacy.node_parser import SentenceSplitter
+from langchain.embeddings import SentenceTransformerEmbeddings
+from llama_index.legacy.vector_stores import ChromaVectorStore
+
+from RAG.llm_ident import giga_llama_llm
 
 EMBEDDING = SentenceTransformerEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
 SERVICE_CONTEXT = ServiceContext.from_defaults(embed_model=EMBEDDING, llm=giga_llama_llm)
 
 
-#  определение название программы из ее названия
 def _get_program_name_from_file_name(file_name: str):
     """
     Получить номер программы постановления из названия файла

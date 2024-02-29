@@ -37,7 +37,7 @@ async def main_handler(message: Message) -> None:
         rag = RAG(query=message.text)
         program_number = rag.get_program_number(query=message.text)
         if program_number == '-1':
-            await message.answer('Пока реализация такова, что в вопросе должен присутствовать номер документа. Пожалуйста, введите его')
+            await message.answer('Пока реализация такова, что в вопросе должен присутствовать номер документа. Пожалуйста, введите вопрос с номером постановления')
         elif program_number not in AVAILABLE_PROGRAMS:
             await message.answer(f'Ой-ой, кажется, таких постановлений нет в моей базе :(\nВот список доступных: {AVAILABLE_PROGRAMS}')
         else:

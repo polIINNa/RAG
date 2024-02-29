@@ -80,5 +80,5 @@ class RAG:
             context = [node.text for node in nodes]
             response = self._response_synthesizer.get_response(text_chunks=context, query_str=self.query)
         except Exception:
-            response = 'В процессе обработки запроса произошла ошибка :('
+            response = 'В процессе обработки запроса произошла ошибка :(('
         return response

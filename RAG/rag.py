@@ -2,7 +2,6 @@ from typing import List
 from pathlib import Path
 
 import chromadb
-from aiogram import Bot
 from llama_index.legacy.indices import VectorStoreIndex
 from llama_index.legacy.schema import TextNode, IndexNode
 from llama_index.legacy.node_parser import SentenceSplitter
@@ -16,7 +15,8 @@ from RAG.prompts import qa_template, refine_template, program_name_template
 
 
 class RAG:
-    def __init__(self):
+    """Класс с ретривером и генератором ответа"""
+    def __init__(self, query):
         self._child_nodes_sized = [128, 256, 512]
         self._child_nodes_parsers = [SentenceSplitter(chunk_size=s, chunk_overlap=20) for s in self._child_nodes_sized]
         self._embedding = SentenceTransformerEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
@@ -28,13 +28,14 @@ class RAG:
         chromadb_path = Path(__file__).parent / 'gospodderzka_db'
         self._db = chromadb.PersistentClient(path=str(chromadb_path))
         self._chroma_collection = self._db.get_collection(name="main")
+        self.query = query
 
     @staticmethod
-    def _get_program_name_from_query(query: str) -> str:
+    def get_program_number(query) -> str:
         """
-        Определить название программы, по которой задается вопрос
+        Получить из вопроса номер программы постановления
         :param query: запрос
-        :return: название программы
+        :return: номер программы
         """
         chain = program_name_template | giga_langchain_llm
         response = chain.invoke({'query_str': query})
@@ -57,11 +58,10 @@ class RAG:
             all_nodes.append(IndexNode.from_text_node(parent, parent.node_id))
         return all_nodes
 
-    async def process(self, query: str, bot: Bot, user_id: int) -> str:
+    async def process(self) -> str:
         try:
-            program_name_from_query = self._get_program_name_from_query(query=query)
-            await bot.send_message(chat_id=user_id, text=f'Ответ буду искать в документе Постановление Правительства №<b>{program_name_from_query}</b>')
-            data = self._chroma_collection.get(where={'program_name': program_name_from_query})
+            program_number = self.get_program_number(query=self.query)
+            data = self._chroma_collection.get(where={'program_name': program_number})
 
             parent_base_nodes = [TextNode(text=data['documents'][i]) for i in range(len(data))]
 
@@ -76,15 +76,9 @@ class RAG:
                 node_dict=all_nodes_dict,
                 verbose=True,
             )
-
-            await bot.send_message(chat_id=user_id, text='Запуск ретривера')
-            nodes = recursive_retriever.retrieve(query)
+            nodes = recursive_retriever.retrieve(self.query)
             context = [node.text for node in nodes]
-
-            await bot.send_message(chat_id= user_id, text='Стучусь в GigaChat, старт генерации ответа')
-            response = self._response_synthesizer.get_response(text_chunks=context, query_str=query)
-
+            response = self._response_synthesizer.get_response(text_chunks=context, query_str=self.query)
         except Exception:
-            response = f'В процессе обработки вопроса {query} произошла ошибка :('
+            response = 'В процессе обработки запроса произошла ошибка :('
         return response
-

@@ -32,9 +32,9 @@ async def command_start_handler(message: Message) -> None:
 
 @dp.message()
 async def main_handler(message: Message) -> None:
-    await message.answer(f'Запускаю обработку вопроса: <b>{message.text}</b>')
+    await message.answer('Запускаю обработку вопроса')
     if message.text is not None and message.from_user is not None:
-        rag = RAG(query=message.text)
+        rag = RAG()
         program_number = rag.get_program_number(query=message.text)
         if program_number == '-1':
             await message.answer('Пока реализация такова, что в вопросе должен присутствовать номер документа. Пожалуйста, введите вопрос с номером постановления')
@@ -42,7 +42,7 @@ async def main_handler(message: Message) -> None:
             await message.answer(f'Ой-ой, кажется, таких постановлений нет в моей базе :(\nВот список доступных: {AVAILABLE_PROGRAMS}')
         else:
             await message.answer(f'Постановления, в которых буду искать ответ на вопрос: <b>{program_number}</b>')
-            response = await rag.process()
+            response = await rag.process(query=message.text)
             await message.answer(f'<b>Ответ</b>:\n{response}')
     else:
         await message.answer('Вопрос должен быть текстом')

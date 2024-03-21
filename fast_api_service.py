@@ -4,11 +4,11 @@ from RAG.rag import RAG
 from fast_api.message import Message
 from programs import AVAILABLE_PROGRAMS
 
-app = FastAPI(description=f"Это сервис, который отвечает на вопросы по документам по господдержке. "
-                          f"Вот список доступных документов: {AVAILABLE_PROGRAMS}."
-                          f"!ВАЖНО!: на текущий момент я могу отвечать на вопрос, "
+app = FastAPI(description=f"Это сервис, который отвечает на вопросы по документам по господдержке.\n"
+                          f"Вот список доступных документов: {AVAILABLE_PROGRAMS}.\n"
+                          f"<b>!ВАЖНО!</b>: на текущий момент я могу отвечать на вопрос, "
                           f"только если в нем есть номер постановления, например: "
-                          f"'В чем суть постановления 295?'")
+                          f"<i>'В чем суть постановления 295?'</i>")
 
 
 @app.get("/api/v1/healthcheck", status_code=status.HTTP_200_OK, response_model=Message,

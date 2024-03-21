@@ -8,6 +8,6 @@ services:
     volumes:
       - ~/rag_serice/log/:/var/log/
     ports:
-      - "8031:8000"
+      - "8031:80"
     env_file:
       - .env

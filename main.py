@@ -14,7 +14,7 @@ from RAG.rag import RAG
 from programs import AVAILABLE_PROGRAMS
 
 load_dotenv()
-TOKEN = os.getenv('TELEGRAM_API_TOKEN_TEST')
+TOKEN = os.getenv('TELEGRAM_API_TOKEN')
 
 dp = Dispatcher()
 

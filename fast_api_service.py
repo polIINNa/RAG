@@ -4,20 +4,20 @@ from RAG.rag import RAG
 from fast_api.message import Message
 from programs import AVAILABLE_PROGRAMS
 
-app = FastAPI(root_path="/api/v1/", description=f"Это сервис, который отвечает на вопросы по документам по господдержке. "
+app = FastAPI(description=f"Это сервис, который отвечает на вопросы по документам по господдержке. "
                                              f"Вот список доступных документов: {AVAILABLE_PROGRAMS}."
                                              f"!ВАЖНО!: на текущий момент я могу отвечать на вопрос, "
                                              f"только если в нем есть номер постановления, например: "
                                              f"'В чем суть постановления 295?'")
 
 
-@app.get("/healthcheck", status_code=status.HTTP_200_OK, response_model=Message,
+@app.get("/api/v1/healthcheck", status_code=status.HTTP_200_OK, response_model=Message,
          summary='Проверка работоспособности сервиса')
 async def healthcheck():
     return "OKResponce"
 
 
-@app.post("/question", response_model=Message, status_code=status.HTTP_200_OK,
+@app.post("/api/v1/question", response_model=Message, status_code=status.HTTP_200_OK,
           summary='Вопрос по документам по господдержке')
 async def parse_question(message: Message):
     rag = RAG(query=message.body)

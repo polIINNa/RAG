@@ -20,7 +20,7 @@ async def healthcheck():
 @app.post("/api/v1/question", response_model=Message, status_code=status.HTTP_200_OK,
           summary='Вопрос по документам по господдержке')
 async def parse_question(message: Message):
-    rag = RAG(query=message.body)
+    rag = RAG()
     program_number = rag.get_program_number(query=message.body)
     if program_number == '-1':
         raise HTTPException(
@@ -35,5 +35,5 @@ async def parse_question(message: Message):
         )
     else:
         message = f"Постановления, в которых буду искать ответ на вопрос: {program_number}."
-        response = await rag.process()
+        response = await rag.process(query=message.body)
         return Message(body=f"{message} {response}")

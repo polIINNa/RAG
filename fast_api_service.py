@@ -4,7 +4,7 @@ from RAG.rag import RAG
 from fast_api.message import Message
 from programs import AVAILABLE_PROGRAMS
 
-app = FastAPI(prefix="/api/v1/", description=f"Это сервис, который отвечает на вопросы по документам по господдержке. "
+app = FastAPI(root_path="/api/v1/", description=f"Это сервис, который отвечает на вопросы по документам по господдержке. "
                                              f"Вот список доступных документов: {AVAILABLE_PROGRAMS}."
                                              f"!ВАЖНО!: на текущий момент я могу отвечать на вопрос, "
                                              f"только если в нем есть номер постановления, например: "

@@ -5,10 +5,10 @@ from fast_api.message import Message
 from programs import AVAILABLE_PROGRAMS
 
 app = FastAPI(description=f"Это сервис, который отвечает на вопросы по документам по господдержке. "
-                                             f"Вот список доступных документов: {AVAILABLE_PROGRAMS}."
-                                             f"!ВАЖНО!: на текущий момент я могу отвечать на вопрос, "
-                                             f"только если в нем есть номер постановления, например: "
-                                             f"'В чем суть постановления 295?'")
+                          f"Вот список доступных документов: {AVAILABLE_PROGRAMS}."
+                          f"!ВАЖНО!: на текущий момент я могу отвечать на вопрос, "
+                          f"только если в нем есть номер постановления, например: "
+                          f"'В чем суть постановления 295?'")
 
 
 @app.get("/api/v1/healthcheck", status_code=status.HTTP_200_OK, response_model=Message,
@@ -34,6 +34,6 @@ async def parse_question(message: Message):
             detail=f"Таких постановлений нет в базе. Вот список доступных: {AVAILABLE_PROGRAMS}"
         )
     else:
-        message = f"Постановления, в которых буду искать ответ на вопрос: {program_number}."
+        caption = f"Постановления, в которых буду искать ответ на вопрос: {program_number}."
         response = await rag.process(query=message.body)
-        return Message(body=f"{message} {response}")
+        return Message(body=f"{caption} {response}")

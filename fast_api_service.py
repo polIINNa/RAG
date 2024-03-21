@@ -14,7 +14,7 @@ app = FastAPI(description=f"Это сервис, который отвечает
 @app.get("/api/v1/healthcheck", status_code=status.HTTP_200_OK, response_model=Message,
          summary='Проверка работоспособности сервиса')
 async def healthcheck():
-    return "OKResponce"
+    return Message(body="OKResponce")
 
 
 @app.post("/api/v1/question", response_model=Message, status_code=status.HTTP_200_OK,
@@ -36,4 +36,4 @@ async def parse_question(message: Message):
     else:
         message = f"Постановления, в которых буду искать ответ на вопрос: {program_number}."
         response = await rag.process()
-        return f"{message} {response}"
+        return Message(body=f"{message} {response}")

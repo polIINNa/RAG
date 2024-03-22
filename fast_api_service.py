@@ -23,16 +23,10 @@ async def parse_question(message: Message):
     rag = RAG()
     program_number = rag.get_program_number(query=message.body)
     if program_number == '-1':
-        raise HTTPException(
-            status_code=status.HTTP_200_OK,
-            detail="Пока реализация такова, что в вопросе должен присутствовать номер документа. "
-                   "Введите вопрос с номером постановления"
-        )
+        return Message(body=f"Пока реализация такова, что в вопросе должен присутствовать номер документа. "
+                            "Введите вопрос с номером постановления")
     elif program_number not in AVAILABLE_PROGRAMS:
-        raise HTTPException(
-            status_code=status.HTTP_200_OK,
-            detail=f"Таких постановлений нет в базе. Вот список доступных: {AVAILABLE_PROGRAMS}"
-        )
+        return Message(body=f"Таких постановлений нет в базе. Вот список доступных: {AVAILABLE_PROGRAMS}")
     else:
         caption = f"Постановления, в которых буду искать ответ на вопрос: {program_number}."
         response = await rag.process(query=message.body)

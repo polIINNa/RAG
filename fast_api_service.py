@@ -28,6 +28,6 @@ async def parse_question(message: Message):
     elif program_number not in AVAILABLE_PROGRAMS:
         return Message(body=f"Таких постановлений нет в базе. Вот список доступных: {AVAILABLE_PROGRAMS}")
     else:
-        caption = f"Постановления, в которых буду искать ответ на вопрос: {program_number}."
+        addition = f"Постановления, в которых происходил поиск ответа на вопрос: {program_number}."
         response = await rag.process(query=message.body)
-        return Message(body=f"{caption} {response}")
+        return Message(body=f"{response} {addition}")

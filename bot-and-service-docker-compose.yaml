@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  gospodderzka_telegram_bot_and_service:
+    build:
+      context: .
+      dockerfile: BotAndService.Dockerfile
+    volumes:
+      - /var/log/rag_service/log/:/var/log/
+    ports:
+      - "8016:80"
+      - "8031:81"
+    env_file:
+      - .env

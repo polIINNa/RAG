@@ -7,9 +7,9 @@ from llama_index.legacy.indices import VectorStoreIndex
 import chromadb
 from llama_index.legacy.vector_stores import ChromaVectorStore, ExactMatchFilter, MetadataFilters
 
-from llm_ident import giga_llama_llm, giga_langchain_llm
+from llm_ident import giga_llama_llm
 from llama_index.legacy.response_synthesizers import get_response_synthesizer, ResponseMode
-from prompts import qa_template, refine_template, program_name_template, rephrase_question_tmpl
+from prompts import qa_template, refine_template
 import questions
 
 

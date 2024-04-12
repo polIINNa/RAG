@@ -7,10 +7,10 @@ from tqdm import tqdm
 from pdf_parser import PdfMinerParser
 
 
-with open("/Users/21109090/Desktop/tagme_markup_no_html.json", 'r') as f:
+with open("C:/Users/ADM/Downloads/tagme_markup_no_html.json", 'r', encoding='utf-8') as f:
     tagme_markup = json.load(f)
 
-base_path = '/Users/21109090/Desktop/госпрограмма/программы'
+base_path = 'C:/Users/ADM/OneDrive/Desktop/RAG_gospodderzka/программы/'
 
 IOU_THR = 0.01
 
@@ -71,35 +71,36 @@ def segments_lines(array):
     } for segm in segments]
 
 
-for markup in tqdm(tagme_markup):
-    markup_for_document = list(markup["result"].values())[0]
-    fpath = os.path.join(base_path, markup["file_name"])
-    doc = parser.parse(fpath)
-    questions = []
-    for index in range(13):
-        pages = []
-        for page_num, page in enumerate(markup_for_document["result"]["pages"]):
-            context_lines = []
-            for mark in page["marks"]:
-                if mark["entityId"] == f'q{index + 1}':
-                    context_box = get_points_for_rotated_rectangle(**mark["position"])
-                    for i, bbox in enumerate(doc[page_num].metadata["bboxes"]):
-                        iou = calculate_iou(context_box, bbox)
-                        if iou > IOU_THR:
-                            context_lines.append(i)
-            if len(context_lines) > 0:
-                segments = segments_lines(context_lines)
-                pages.append({"page_number": page_num, "context_lines": segments})
+if __name__ == '__main__':
+    for markup in tqdm(tagme_markup):
+        markup_for_document = list(markup["result"].values())[0]
+        fpath = os.path.join(base_path, markup["file_name"])
+        doc = parser.parse(fpath)
+        questions = []
+        for index in range(13):
+            pages = []
+            for page_num, page in enumerate(markup_for_document["result"]["pages"]):
+                context_lines = []
+                for mark in page["marks"]:
+                    if mark["entityId"] == f'q{index + 1}':
+                        context_box = get_points_for_rotated_rectangle(**mark["position"])
+                        for i, bbox in enumerate(doc[page_num].metadata["bboxes"]):
+                            iou = calculate_iou(context_box, bbox)
+                            if iou > IOU_THR:
+                                context_lines.append(i)
+                if len(context_lines) > 0:
+                    segments = segments_lines(context_lines)
+                    pages.append({"page_number": page_num, "context_lines": segments})
 
-        questions.append({
-            "question": markup_for_document["result"][f"q{index + 1}"],
-            "context": pages
+            questions.append({
+                "question": markup_for_document["result"][f"q{index + 1}"],
+                "context": pages
+            })
+
+        gold_markup.append({
+            "file_name": markup["file_name"],
+            "markup": questions
         })
 
-    gold_markup.append({
-        "file_name": markup["file_name"],
-        "markup": questions
-    })
-
-with open('/Users/21109090/Desktop/госпрограмма/to_eval/gold_markup.json', 'w') as f:
-    json.dump(gold_markup, f, ensure_ascii=False, indent=4)
+    with open('C:/Users/ADM/Downloads/gold_markup.json', 'w') as f:
+        json.dump(gold_markup, f, ensure_ascii=False, indent=4)

@@ -12,6 +12,6 @@ scope = os.getenv('GIGA_SCOPE')
 credentials = os.getenv('GIGA_CREDENTIALS')
 
 giga_langchain_llm = GigaChat(base_url=base_url, auth_url=auth_url, scope=scope, credentials=credentials,
-                              verify_ssl_certs=False, model=os.getenv('GIGA_MODEL'), profanity=False, temperature=0.2)
+                              verify_ssl_certs=False, model=os.getenv('GIGA_MODEL'), profanity_check=False, temperature=0.2)
 
 giga_llama_llm = LangChainLLM(llm=giga_langchain_llm)

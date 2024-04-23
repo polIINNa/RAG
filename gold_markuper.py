@@ -7,8 +7,8 @@ from tqdm import tqdm
 from pdf_parser import PdfMinerParser
 
 
-with open("C:/Users/ADM/Downloads/tagme_markup_no_html.json", 'r', encoding='utf-8') as f:
-    tagme_markup = json.load(f)
+with open("C:/Users/ADM/OneDrive/Desktop/RAG/tagme_markup_no_html.json", 'r', encoding='utf-8') as f:
+    tagme_markup_all = json.load(f)
 
 base_path = 'C:/Users/ADM/OneDrive/Desktop/RAG_gospodderzka/программы/'
 
@@ -72,14 +72,13 @@ def segments_lines(array):
 
 
 if __name__ == '__main__':
-    for markup in tqdm(tagme_markup):
-        markup_for_document = list(markup["result"].values())[0]
-        fpath = os.path.join(base_path, markup["file_name"])
+    for tagme_markup in tagme_markup_all:
+        fpath = os.path.join(base_path, tagme_markup["file_name"])
         doc = parser.parse(fpath)
-        questions = []
+        file_markup = []
         for index in range(13):
             pages = []
-            for page_num, page in enumerate(markup_for_document["result"]["pages"]):
+            for page_num, page in enumerate(tagme_markup['result']['pages']):
                 context_lines = []
                 for mark in page["marks"]:
                     if mark["entityId"] == f'q{index + 1}':
@@ -92,15 +91,16 @@ if __name__ == '__main__':
                     segments = segments_lines(context_lines)
                     pages.append({"page_number": page_num, "context_lines": segments})
 
-            questions.append({
-                "question": markup_for_document["result"][f"q{index + 1}"],
-                "context": pages
+            file_markup.append({
+                "question": tagme_markup["result"][f"q{index + 1}"],
+                "context": pages,
+                "answers": tagme_markup["result"][f"a{index + 1}"]
             })
 
         gold_markup.append({
-            "file_name": markup["file_name"],
-            "markup": questions
+            "file_name": tagme_markup["file_name"],
+            "markup": file_markup
         })
 
-    with open('C:/Users/ADM/Downloads/gold_markup.json', 'w') as f:
+    with open('C:/Users/ADM/OneDrive/Desktop/RAG/gold_markup.json', 'w', encoding='utf-8') as f:
         json.dump(gold_markup, f, ensure_ascii=False, indent=4)

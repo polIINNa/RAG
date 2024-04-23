@@ -1,9 +1,17 @@
-import os
-from typing import List, Dict
 import json
 
+from datasets import Dataset
+from ragas.metrics import answer_correctness, answer_similarity
+from ragas import evaluate
 
-def get_mapped_questions(program_name: str) -> Dict:
+from llm_ident import gpt_llm
+from langchain.embeddings import HuggingFaceEmbeddings
+
+
+EMBED_MODEL = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
+
+
+def get_mapped_questions(program_name):
     """
     Получить маппинг задаваемых вопрос на те, по которым сделана разметка
     :param program_name:
@@ -28,7 +36,7 @@ def get_mapped_questions(program_name: str) -> Dict:
     return mapped_questions
 
 
-def get_file_gold_markup(gold_markup, file_name: str) -> List:
+def get_file_context_gold_markup(gold_markup, file_name):
     """
     Получить из всей разметки разметку по нужному вопросу
     :param gold_markup: вся разметка
@@ -40,7 +48,13 @@ def get_file_gold_markup(gold_markup, file_name: str) -> List:
             return gold_markup[i]['markup']
 
 
-def get_gold_context(question: str, mapped_questions: Dict, file_gold_markup: List[Dict]) -> List:
+def get_file_answer_gold_markup(file_name, answer_gold_markup):
+    for file in answer_gold_markup:
+        if file['file_name'].split('.')[0].split(' ')[1] == file_name:
+            return file['answer_gold_markup']
+
+
+def get_gold_context(question, mapped_questions, file_gold_markup):
     """
     Получить голд контекст по вопросу
     """
@@ -50,7 +64,17 @@ def get_gold_context(question: str, mapped_questions: Dict, file_gold_markup: Li
             return file_gold_markup[i]['context']
 
 
-def get_len_gold_context(gold_context) -> int:
+def get_gold_answer(question, mapped_questions, file_gold_markup):
+    """
+    Получить голд ответ по вопросу
+    """
+    mapped_question = mapped_questions[question]
+    for data in file_gold_markup:
+        if data['question'] == mapped_question:
+            return data['answer']
+
+
+def get_len_gold_context(gold_context):
     """
     Получить размер голд контекста
     :param gold_context: голд контекст по вопросу
@@ -63,12 +87,12 @@ def get_len_gold_context(gold_context) -> int:
     return len_gold_context
 
 
-def get_eval(context, gold_context) -> Dict | None:
+def eval_context(context, gold_context):
     """
     Получить оценку по одному вопросу
     :param context: контекст по вопросу
     :param gold_context: голд контекст по вопросу
-    :return:
+    :return: метрика recall
     """
     numb_match_lines = 0
     len_gold_context = get_len_gold_context(gold_context=gold_context)
@@ -86,29 +110,55 @@ def get_eval(context, gold_context) -> Dict | None:
         return context_eval
 
 
-with open('/Users/21109090/Desktop/госпрограмма/to_eval/gold_markup.json', 'r') as f:
-    gold_markup = json.load(f)
-
-dir = '/Users/21109090/Desktop/госпрограмма/to_eval/rag_results'
-files_res = os.listdir(dir)
-
-for file in files_res:
-    file_eval = []
-    with open(f'{dir}/{file}', 'r') as f:
-        file_res = json.load(f)
-    file_gold_markup = get_file_gold_markup(file_name=file.split('.')[0], gold_markup=gold_markup)
-    for res in file_res:
-        mapped_questions = get_mapped_questions(program_name=file.split('.')[0])
-        gold_context = get_gold_context(question=res['question'], mapped_questions=mapped_questions,
-                                        file_gold_markup=file_gold_markup)
-        context_eval = get_eval(context=res['context'], gold_context=gold_context)
-        file_eval.append({'question': res['question'],
-                          'text': res['text'],
-                          'context_eval': context_eval,
-                          'llm_response': res['response']})
-    with open(f'/Users/21109090/Desktop/госпрограмма/to_eval/eval_results/{file}', 'w') as f:
-        json.dump(file_eval, f, ensure_ascii=False, indent=4)
+def eval_answer(gold_answer, rag_answer, question):
+    data_samples = {
+        'question': [question],
+        'answer': [rag_answer],
+        'ground_truth': [gold_answer]
+    }
+    dataset = Dataset.from_dict(data_samples)
+    if gold_answer != '-':
+        score = evaluate(dataset, metrics=[answer_correctness, answer_similarity],
+                         embeddings=EMBED_MODEL, llm=gpt_llm)
+        return score['answer_correctness'], score['answer_similarity']
+    else:
+        return None, None
 
 
+with open('C:/Users/ADM/OneDrive/Desktop/RAG/gold_markup.json', 'r', encoding='utf-8') as f:
+    context_gold_markup = json.load(f)
+with open('C:/Users/ADM/OneDrive/Desktop/RAG/answer_gold_markup.json', 'r', encoding='utf-8') as f:
+    answer_gold_markup = json.load(f)
 
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter'
+files_res = ['1598.json', '2221.json', '574.json']
+if __name__ == '__main__':
+    for file in files_res:
+        file_eval = []
+        print(f'РАСЧЕТ МЕТРИК ДЛЯ ФАЙЛА {file}')
+        with open(f'{dir}/{file}', 'r', encoding='utf-8') as f:
+            file_res = json.load(f)
+        file_context_gold_markup = get_file_context_gold_markup(file_name=file.split('.')[0],
+                                                                gold_markup=context_gold_markup)
+        file_answer_gold_markup = get_file_answer_gold_markup(file_name=file.split('.')[0],
+                                                              answer_gold_markup=answer_gold_markup)
+        for res in file_res:
+            mapped_questions = get_mapped_questions(program_name=file.split('.')[0])
+
+            gold_context = get_gold_context(question=res['question'], mapped_questions=mapped_questions,
+                                            file_gold_markup=file_context_gold_markup)
+            gold_answer = get_gold_answer(question=res['question'], mapped_questions=mapped_questions,
+                                          file_gold_markup=file_answer_gold_markup)
+
+            answer_eval = eval_answer(gold_answer=gold_answer, rag_answer=res['response'], question=res['question'])
+            context_eval = eval_context(context=res['context'], gold_context=gold_context)
+            file_eval.append({'question': res['question'],
+                              'text': res['text'],
+                              'context_eval': context_eval,
+                              'llm_response': res['response'],
+                              'answer_similarity': answer_eval[1],
+                              'answer_correctness': answer_eval[0],
+                              'nodes_score': res['nodes_score']})
+        with open(f'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter/eval_results/{file}', 'w', encoding='utf-8') as f:
+            json.dump(file_eval, f, ensure_ascii=False, indent=4)
 

@@ -1,7 +1,7 @@
 import json
 
 from datasets import Dataset
-from ragas.metrics import answer_correctness, answer_similarity
+from ragas.metrics import answer_correctness
 from ragas import evaluate
 
 from llm_ident import gpt_llm
@@ -118,11 +118,12 @@ def eval_answer(gold_answer, rag_answer, question):
     }
     dataset = Dataset.from_dict(data_samples)
     if gold_answer != '-':
-        score = evaluate(dataset, metrics=[answer_correctness, answer_similarity],
+        answer_correctness.weights = [0.9, 0.1]
+        score = evaluate(dataset, metrics=[answer_correctness],
                          embeddings=EMBED_MODEL, llm=gpt_llm)
-        return score['answer_correctness'], score['answer_similarity']
+        return score['answer_correctness']
     else:
-        return None, None
+        return None
 
 
 with open('C:/Users/ADM/OneDrive/Desktop/RAG/gold_markup.json', 'r', encoding='utf-8') as f:
@@ -156,8 +157,7 @@ if __name__ == '__main__':
                               'text': res['text'],
                               'context_eval': context_eval,
                               'llm_response': res['response'],
-                              'answer_similarity': answer_eval[1],
-                              'answer_correctness': answer_eval[0],
+                              'answer_correctness': answer_eval,
                               'nodes_score': res['nodes_score']})
         with open(f'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter/eval_results/{file}', 'w', encoding='utf-8') as f:
             json.dump(file_eval, f, ensure_ascii=False, indent=4)

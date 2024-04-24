@@ -9,7 +9,7 @@ files = os.listdir(dir)
 
 program_names, questions, contexts, nodes_scoress, llm_responses, \
 len_gold_contexts, numb_match_liness, context_recalls, avg_nodes_scoress, \
-answer_similaritys, answer_correctnesss= [], [], [], [], [], [], [], [], [], [], []
+answer_correctnesss = [], [], [], [], [], [], [], [], [], []
 
 if __name__ == '__main__':
     for file_name in files:
@@ -22,7 +22,6 @@ if __name__ == '__main__':
             questions.append(res['question'])
             contexts.append(res['text'])
             llm_responses.append(res['llm_response'])
-            answer_similaritys.append(res['answer_similarity'])
             answer_correctnesss.append(res['answer_correctness'])
             nodes_scoress.append(res['nodes_score'])
             avg_nodes_scoress.append(sum(res['nodes_score'])/len(res['nodes_score']))
@@ -45,8 +44,7 @@ if __name__ == '__main__':
                  'Число предложений в голд контексте': len_gold_contexts,
                  'Число мэтча предложений и голд контекста': numb_match_liness,
                  'Recall': context_recalls,
-                 'Answer correctness': answer_correctnesss,
-                 'Answer similarity': answer_similaritys}
+                 'Answer correctness': answer_correctnesss}
 
     df = pd.DataFrame(res2write)
     df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter.xlsx')

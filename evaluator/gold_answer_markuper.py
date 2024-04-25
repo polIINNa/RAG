@@ -14,4 +14,3 @@ if __name__ == '__main__':
                                    'answer_gold_markup': file_answer_gold_markup})
     with open('C:/Users/ADM/OneDrive/Desktop/RAG/answer_gold_markup.json', 'w', encoding='utf-8') as f:
         json.dump(answer_gold_markup, f, ensure_ascii=False, indent=4)
-

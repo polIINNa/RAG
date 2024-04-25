@@ -4,12 +4,12 @@ import os
 import pandas as pd
 
 
-dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter/eval_results'
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info/eval_results'
 files = os.listdir(dir)
 
-program_names, questions, contexts, nodes_scoress, llm_responses, \
+program_names, origin_questions, rewrite_questions, contexts, nodes_scoress, llm_responses, \
 len_gold_contexts, numb_match_liness, context_recalls, avg_nodes_scoress, \
-answer_correctnesss = [], [], [], [], [], [], [], [], [], []
+answer_correctnesss = [], [], [], [], [], [], [], [], [], [], []
 
 if __name__ == '__main__':
     for file_name in files:
@@ -19,10 +19,11 @@ if __name__ == '__main__':
         program_name = file_name.split('.')[0]
         for res in data:
             program_names.append(program_name)
-            questions.append(res['question'])
+            origin_questions.append(res['origin question'])
+            rewrite_questions.append(res['rewrite question'])
             contexts.append(res['text'])
             llm_responses.append(res['llm_response'])
-            answer_correctnesss.append(res['answer_correctness'])
+            answer_correctnesss.append(res['answer_correctness_rewrite'])
             nodes_scoress.append(res['nodes_score'])
             avg_nodes_scoress.append(sum(res['nodes_score'])/len(res['nodes_score']))
 
@@ -36,7 +37,8 @@ if __name__ == '__main__':
                 context_recalls.append('null')
 
     res2write = {'Номмер программы': program_names,
-                 'Вопрос': questions,
+                 'Оригинальный вопрос': origin_questions,
+                 'Перефразированный вопрос': rewrite_questions,
                  'Контекст': contexts,
                  'Значения косинусной близости нод': nodes_scoress,
                  'Среднее значение скора по нодам': avg_nodes_scoress,
@@ -44,10 +46,10 @@ if __name__ == '__main__':
                  'Число предложений в голд контексте': len_gold_contexts,
                  'Число мэтча предложений и голд контекста': numb_match_liness,
                  'Recall': context_recalls,
-                 'Answer correctness': answer_correctnesss}
+                 'Answer correctness (rewrite)': answer_correctnesss}
 
     df = pd.DataFrame(res2write)
-    df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter.xlsx')
+    df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting_no_doc_info.xlsx')
 
 
 

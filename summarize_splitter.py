@@ -2,7 +2,7 @@ import re
 
 from langchain_core.prompts import PromptTemplate
 
-from llm_ident import giga_langchain_llm
+from pipeline.llm_ident import giga_langchain_llm_soft
 
 
 POINT_REGEX = r'\d{1,}\.{1} '
@@ -21,7 +21,7 @@ def _summarize(text):
     """
     text = text.replace('\n', ' ')
     prompt = PromptTemplate.from_template(template=query_tmpl_str)
-    chain = prompt | giga_langchain_llm
+    chain = prompt | giga_langchain_llm_soft
     return chain.invoke({'text': text}).content
 
 

@@ -4,7 +4,7 @@ from datasets import Dataset
 from ragas.metrics import answer_correctness
 from ragas import evaluate
 
-from llm_ident import gpt_llm
+from pipeline.llm_ident import gpt_llm
 from langchain.embeddings import HuggingFaceEmbeddings
 
 
@@ -131,7 +131,7 @@ with open('C:/Users/ADM/OneDrive/Desktop/RAG/gold_markup.json', 'r', encoding='u
 with open('C:/Users/ADM/OneDrive/Desktop/RAG/answer_gold_markup.json', 'r', encoding='utf-8') as f:
     answer_gold_markup = json.load(f)
 
-dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter'
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info_rephrase'
 files_res = ['1598.json', '2221.json', '574.json']
 if __name__ == '__main__':
     for file in files_res:
@@ -146,19 +146,23 @@ if __name__ == '__main__':
         for res in file_res:
             mapped_questions = get_mapped_questions(program_name=file.split('.')[0])
 
-            gold_context = get_gold_context(question=res['question'], mapped_questions=mapped_questions,
+            gold_context = get_gold_context(question=res['origin question'], mapped_questions=mapped_questions,
                                             file_gold_markup=file_context_gold_markup)
-            gold_answer = get_gold_answer(question=res['question'], mapped_questions=mapped_questions,
+            gold_answer = get_gold_answer(question=res['origin question'], mapped_questions=mapped_questions,
                                           file_gold_markup=file_answer_gold_markup)
 
-            answer_eval = eval_answer(gold_answer=gold_answer, rag_answer=res['response'], question=res['question'])
+            # eval_answer_origin = eval_answer(gold_answer=gold_answer, rag_answer=res['response'],
+            #                                  question=res['origin question'])
+            eval_answer_rewrite = eval_answer(gold_answer=gold_answer, rag_answer=res['response'],
+                                              question=res['rewrite question'])
             context_eval = eval_context(context=res['context'], gold_context=gold_context)
-            file_eval.append({'question': res['question'],
+            file_eval.append({'origin question': res['origin question'],
+                              'rewrite question': res['rewrite question'],
                               'text': res['text'],
                               'context_eval': context_eval,
                               'llm_response': res['response'],
-                              'answer_correctness': answer_eval,
+                              'answer_correctness_rewrite': eval_answer_rewrite,
                               'nodes_score': res['nodes_score']})
-        with open(f'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter/eval_results/{file}', 'w', encoding='utf-8') as f:
+        with open(f'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info_rephrase/eval_results/{file}', 'w', encoding='utf-8') as f:
             json.dump(file_eval, f, ensure_ascii=False, indent=4)
 

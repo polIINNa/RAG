@@ -10,7 +10,7 @@ from pdf_parser import PdfMinerParser
 with open("C:/Users/ADM/OneDrive/Desktop/RAG/tagme_markup_no_html.json", 'r', encoding='utf-8') as f:
     tagme_markup_all = json.load(f)
 
-base_path = 'C:/Users/ADM/OneDrive/Desktop/RAG_gospodderzka/программы/'
+base_path = '/программы/'
 
 IOU_THR = 0.01
 

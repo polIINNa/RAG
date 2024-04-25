@@ -1,6 +1,5 @@
 import os
 import json
-from typing import List
 
 import chromadb
 from llama_index.legacy.storage import StorageContext
@@ -11,8 +10,8 @@ from llama_index.legacy.schema import TextNode
 
 
 from pdf_parser import PdfMinerParser
-from llm_ident import giga_llama_llm
-from subpoints_splitter import subpoints_spitter
+from pipeline.llm_ident import giga_llama_llm
+import summarize_splitter
 
 
 def get_program_name_from_file(file_name):
@@ -24,7 +23,7 @@ def get_program_name_from_file(file_name):
     return file_name.split('.')[0].split(' ')[1]
 
 
-def add_lines(parents_datas: List):
+def add_lines(parents_datas):
     cur_page_number = 0
     cur_line = 0
     parents_datas = sorted(parents_datas, key=lambda x: x['page_number'])
@@ -42,13 +41,13 @@ def add_lines(parents_datas: List):
     return parents_datas
 
 
-dir = '/программы_для_тестов/'
+dir = '/программы_для_тестов'
 files = os.listdir(dir)
 
 parser = PdfMinerParser()
 
-db = chromadb.PersistentClient(path='../VDB_new_splitter')
-collection = db.get_or_create_collection(name='subpoints')
+db = chromadb.PersistentClient(path='DB/VDB_new_splitter')
+collection = db.get_or_create_collection(name='summarize')
 
 embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
 
@@ -64,18 +63,15 @@ if __name__ == '__main__':
         file_parents, file_parents_ids = [], []
         for page in documents:
             page.metadata.pop("bboxes")
-        chunks = subpoints_spitter.split(documents=documents)
-        # Создаем список родительских чанков файла
+        chunks = summarize_splitter.split(documents=documents)
+        # Создаем список родительских чанков файла (ОТНОШЕНИЕ РОДИТЕЛЬ-РЕБЕНОК 1-1)
         for chunk in chunks:
-            if chunk['parent_id'] not in file_parents_ids:
-                parent = {'file_name': file_name,
-                          'id': chunk['parent_id'],
-                          'page_number': chunk['page_number'],
-                          'text': chunk['parent_text']
-                          }
-                file_parents.append(parent)
-                file_parents_ids.append(chunk['parent_id'])
-
+            parent = {'file_name': file_name,
+                      'id': chunk['parent_id'],
+                      'page_number': chunk['page_number'],
+                      'text': chunk['parent_text']
+                      }
+            file_parents.append(parent)
         # Добавляем номера строк начала и конца родительских чанков
         file_parents = add_lines(parents_datas=file_parents)
         # Добавляем в список всех родительских чанков по всем файлам
@@ -93,5 +89,5 @@ if __name__ == '__main__':
             node.text = node.text.replace('\n', ' ')
             VectorStoreIndex(nodes=[node], storage_context=storage_context, service_context=service_context)
 
-    with open('parents_subpoints.json', 'w', encoding='utf-8') as f:
+    with open('DB/parents_summarize.json', 'w', encoding='utf-8') as f:
         json.dump(parents, f, indent=4)

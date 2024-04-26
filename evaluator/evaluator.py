@@ -87,6 +87,13 @@ def get_len_gold_context(gold_context):
     return len_gold_context
 
 
+def get_len_context(context):
+    len_context = 0
+    for node in context:
+        len_context += node.metadata['end_line'] - node.metadata['start_line'] + 1
+    return len_context
+
+
 def eval_context(context, gold_context):
     """
     Получить оценку по одному вопросу
@@ -96,6 +103,7 @@ def eval_context(context, gold_context):
     """
     numb_match_lines = 0
     len_gold_context = get_len_gold_context(gold_context=gold_context)
+    len_context = get_len_context(context=context)
     if len_gold_context != 0:
         for page in gold_context:
             for node in context:
@@ -104,9 +112,12 @@ def eval_context(context, gold_context):
                     for box in page['context_lines']:
                         box_lines = set([line for line in range(box['start_line'], box['end_line']+1)])
                         numb_match_lines += len(box_lines.intersection(node_lines))
+        recall = numb_match_lines/len_gold_context
+        precision = numb_match_lines/len_context
         context_eval = {'len_gold_context': len_gold_context,
                         'numb_match_lines': numb_match_lines,
-                        'context_recall': numb_match_lines/len_gold_context}
+                        'context_recall': recall,
+                        'context_precision': precision}
         return context_eval
 
 

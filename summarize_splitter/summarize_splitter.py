@@ -2,11 +2,9 @@ import re
 
 from langchain_core.prompts import PromptTemplate
 
-from llm_ident import giga_langchain_llm
+from pipeline.llm_ident import giga_langchain_llm
 
 
-POINT_REGEX = r'\d{1,}\.{1} '
-SUBPOINT_REGEX = r'\n[a-я]{1}\)'
 MAX_NODE_LENGHT = 1024
 
 
@@ -28,7 +26,7 @@ def _summarize(text):
 def split(documents):
     chunks = []
     for page in documents:
-        points = re.split(POINT_REGEX, page.text)
+        points = re.split('\n\d{1,}\.{1} ', page.text)
         for idx, point in enumerate(points):
             point_id = f'{page.metadata["file_name"]}-{page.metadata["page_number"]}-{idx}'
             if len(point) > MAX_NODE_LENGHT:

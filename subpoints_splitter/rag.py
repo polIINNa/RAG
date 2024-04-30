@@ -7,10 +7,10 @@ from llama_index.legacy.indices import VectorStoreIndex
 import chromadb
 from llama_index.legacy.vector_stores import ChromaVectorStore, ExactMatchFilter, MetadataFilters
 
-from llm_ident import giga_llama_llm
+from pipeline.llm_ident import giga_llama_llm
 from llama_index.legacy.response_synthesizers import get_response_synthesizer, ResponseMode
-from prompts import qa_template, refine_template
-import questions
+from pipeline.prompts import qa_template, refine_template
+from pipeline import questions
 
 
 def get_program_name_from_file(file_name):
@@ -36,7 +36,7 @@ llm_response_generator = get_response_synthesizer(service_context=service_contex
                                                   text_qa_template=qa_template,
                                                   refine_template=refine_template)
 
-dir = '/программы_для_тестов/'
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG_gospodderzka/программы_для_тестов'
 files = os.listdir(dir)
 
 if __name__ == '__main__':
@@ -53,7 +53,7 @@ if __name__ == '__main__':
                                                                                                   value=program_name)]))
             print('СТАРТ ПОИСКА РЕЛЕВАНТНЫХ ЧАНКОВ')
             retrieved_nodes = base_retriever.retrieve(question)
-            with open('parents_subpoints.json', 'r', encoding='utf-8') as f:
+            with open('parents.json', 'r', encoding='utf-8') as f:
                 parents = json.load(f)
             parent_nodes_ids = []
             for node in retrieved_nodes:

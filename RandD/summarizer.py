@@ -1,10 +1,6 @@
-import re
-from typing import List
-
 from langchain_core.prompts import PromptTemplate
-from llama_index.legacy.schema import TextNode
 
-from llm_ident import giga_langchain_llm
+from pipeline.llm_ident import giga_langchain_llm
 
 
 def _summarize(text: str) -> str:

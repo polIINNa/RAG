@@ -10,7 +10,7 @@ from llama_index.legacy.schema import TextNode
 
 
 from pdf_parser import PdfMinerParser
-from llm_ident import giga_llama_llm
+from pipeline.llm_ident import giga_llama_llm
 import summarize_splitter
 
 
@@ -53,41 +53,39 @@ embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
 
 storage_context = StorageContext.from_defaults(vector_store=ChromaVectorStore(chroma_collection=collection))
 service_context = ServiceContext.from_defaults(embed_model=embed_model, llm=giga_llama_llm)
-parents = []
+parents, chunks, nodes = [], [], []
 
 if __name__ == '__main__':
     for file_name in files:
         print(f'ОБРАБОТКА ФАЙЛА {file_name}')
+        program_name = get_program_name_from_file(file_name=file_name)
         path = f'{dir}/{file_name}'
         documents = parser.parse(path)
         file_parents, file_parents_ids = [], []
         for page in documents:
             page.metadata.pop("bboxes")
-        chunks = summarize_splitter.split(documents=documents)
+        print('СТАРТ СОЗДАНИЯ ЧАНКОВ')
+        file_chunks = summarize_splitter.split(documents=documents)
+        chunks.extend(file_chunks)
         # Создаем список родительских чанков файла (ОТНОШЕНИЕ РОДИТЕЛЬ-РЕБЕНОК 1-1)
-        for chunk in chunks:
-            parent = {'file_name': file_name,
-                      'id': chunk['parent_id'],
+        for chunk in file_chunks:
+            parent = {'id': chunk['parent_id'],
                       'page_number': chunk['page_number'],
                       'text': chunk['parent_text']
                       }
             file_parents.append(parent)
+            nodes.append(TextNode(text=chunk['text'], metadata={'page_number': chunk['page_number'],
+                                                                'parent_id': chunk['parent_id'],
+                                                                'program_name': program_name}))
         # Добавляем номера строк начала и конца родительских чанков
         file_parents = add_lines(parents_datas=file_parents)
-        # Добавляем в список всех родительских чанков по всем файлам
         parents.extend(file_parents)
 
-        # Создаем ноды, по которым будет вестись поиск
-        nodes = []
-        for chunk in chunks:
-            nodes.append(TextNode(text=chunk['text'], metadata={'page_number': chunk['page_number'],
-                                                                'parent_id': chunk['parent_id']}))
-
-        program_name = get_program_name_from_file(file_name=file_name)
-        for idx, node in enumerate(nodes):
-            node.metadata['program_name'] = program_name
-            node.text = node.text.replace('\n', ' ')
-            VectorStoreIndex(nodes=[node], storage_context=storage_context, service_context=service_context)
-
-    with open('parents_summarize.json', 'w', encoding='utf-8') as f:
+    # Сохраняем ноды в векторное хранилище, родителей в json с родителями, а детей в json с детьми
+    for node in nodes:
+        node.text = node.text.replace('\n', ' ')
+        VectorStoreIndex(nodes=[node], storage_context=storage_context, service_context=service_context)
+    with open('parents.json', 'w', encoding='utf-8') as f:
         json.dump(parents, f, indent=4)
+    with open('search_chunks.json', 'w', encoding='utf-8') as f:
+        json.dump(chunks, f, indent=4)

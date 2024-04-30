@@ -9,7 +9,7 @@ from llama_index.legacy.node_parser import TokenTextSplitter
 
 
 from pdf_parser import PdfMinerParser
-from llm_ident import giga_llama_llm
+from pipeline.llm_ident import giga_llama_llm
 
 
 def get_program_name_from_file(file_name):

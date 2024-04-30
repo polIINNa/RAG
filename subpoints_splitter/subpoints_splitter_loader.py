@@ -11,7 +11,7 @@ from llama_index.legacy.schema import TextNode
 
 
 from pdf_parser import PdfMinerParser
-from llm_ident import giga_llama_llm
+from pipeline.llm_ident import giga_llama_llm
 from subpoints_splitter import subpoints_spitter
 
 
@@ -42,7 +42,7 @@ def add_lines(parents_datas: List):
     return parents_datas
 
 
-dir = '/программы_для_тестов/'
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG_gospodderzka/программы_для_тестов'
 files = os.listdir(dir)
 
 parser = PdfMinerParser()
@@ -54,44 +54,41 @@ embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
 
 storage_context = StorageContext.from_defaults(vector_store=ChromaVectorStore(chroma_collection=collection))
 service_context = ServiceContext.from_defaults(embed_model=embed_model, llm=giga_llama_llm)
-parents = []
-
+parents, chunks, nodes = [], [], []
 if __name__ == '__main__':
     for file_name in files:
         print(f'ОБРАБОТКА ФАЙЛА {file_name}')
+        program_name = get_program_name_from_file(file_name=file_name)
         path = f'{dir}/{file_name}'
         documents = parser.parse(path)
         file_parents, file_parents_ids = [], []
         for page in documents:
             page.metadata.pop("bboxes")
-        chunks = subpoints_spitter.split(documents=documents)
+        file_chunks = subpoints_spitter.split(documents=documents)
         # Создаем список родительских чанков файла
-        for chunk in chunks:
+        for chunk in file_chunks:
             if chunk['parent_id'] not in file_parents_ids:
-                parent = {'file_name': file_name,
-                          'id': chunk['parent_id'],
+                parent = {'id': chunk['parent_id'],
                           'page_number': chunk['page_number'],
                           'text': chunk['parent_text']
                           }
                 file_parents.append(parent)
                 file_parents_ids.append(chunk['parent_id'])
-
+            nodes.append(TextNode(text=chunk['text'], metadata={'page_number': chunk['page_number'],
+                                                                'parent_id': chunk['parent_id'],
+                                                                'program_name': program_name}))
         # Добавляем номера строк начала и конца родительских чанков
         file_parents = add_lines(parents_datas=file_parents)
         # Добавляем в список всех родительских чанков по всем файлам
         parents.extend(file_parents)
+        chunks.extend(file_chunks)
 
-        # Создаем ноды, по которым будет вестись поиск
-        nodes = []
-        for chunk in chunks:
-            nodes.append(TextNode(text=chunk['text'], metadata={'page_number': chunk['page_number'],
-                                                                'parent_id': chunk['parent_id']}))
-
-        program_name = get_program_name_from_file(file_name=file_name)
-        for idx, node in enumerate(nodes):
-            node.metadata['program_name'] = program_name
-            node.text = node.text.replace('\n', ' ')
-            VectorStoreIndex(nodes=[node], storage_context=storage_context, service_context=service_context)
-
-    with open('parents_subpoints.json', 'w', encoding='utf-8') as f:
+    # Сохраняем данные
+    for node in nodes:
+        node.text = node.text.replace('\n', ' ')
+        VectorStoreIndex(nodes=[node], storage_context=storage_context, service_context=service_context)
+    with open('parents.json', 'w', encoding='utf-8') as f:
         json.dump(parents, f, indent=4)
+    with open('search_chunks.json', 'w', encoding='utf-8') as f:
+        json.dump(chunks, f, indent=4)
+

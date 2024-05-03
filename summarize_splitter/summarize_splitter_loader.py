@@ -47,7 +47,7 @@ files = os.listdir(dir)
 parser = PdfMinerParser()
 
 db = chromadb.PersistentClient(path='../VDB_new_splitter')
-collection = db.get_or_create_collection(name='summarize')
+collection = db.get_or_create_collection(name='summarize2')
 
 embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     for node in nodes:
         node.text = node.text.replace('\n', ' ')
         VectorStoreIndex(nodes=[node], storage_context=storage_context, service_context=service_context)
-    with open('parents.json', 'w', encoding='utf-8') as f:
+    with open('parents2.json', 'w', encoding='utf-8') as f:
         json.dump(parents, f, indent=4)
-    with open('search_chunks.json', 'w', encoding='utf-8') as f:
+    with open('search_chunks2.json', 'w', encoding='utf-8') as f:
         json.dump(chunks, f, indent=4)

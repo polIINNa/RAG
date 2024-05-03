@@ -146,8 +146,8 @@ with open('C:/Users/ADM/OneDrive/Desktop/RAG/gold_markup.json', 'r', encoding='u
 with open('C:/Users/ADM/OneDrive/Desktop/RAG/answer_gold_markup.json', 'r', encoding='utf-8') as f:
     answer_gold_markup = json.load(f)
 
-dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/token_splitter'
-files_res = ['1598.json', '2221.json', '574.json']
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter'
+files_res = ['574.json']
 if __name__ == '__main__':
     for file in files_res:
         file_eval = []
@@ -174,6 +174,6 @@ if __name__ == '__main__':
                               'llm_response': res['response'],
                               'answer_correctness': answer_eval,
                               'nodes_score': res['nodes_score']})
-        with open(f'C:/Users/ADM/OneDrive/Desktop/RAG/token_splitter/eval_results/{file}', 'w', encoding='utf-8') as f:
+        with open(f'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter/eval_results/{file}', 'w', encoding='utf-8') as f:
             json.dump(file_eval, f, ensure_ascii=False, indent=4)
 

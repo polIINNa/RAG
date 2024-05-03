@@ -23,7 +23,7 @@ def get_program_name_from_file(file_name):
 
 
 db = chromadb.PersistentClient(path='../VDB_new_splitter')
-chroma_collection = db.get_collection(name="summarize")
+chroma_collection = db.get_collection(name="summarize2")
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
 

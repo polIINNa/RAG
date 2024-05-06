@@ -103,6 +103,17 @@ HYDE_TMPL = """
 Ответ: 
 """
 
+SYNTH_QUESTIONS_TMPL = """
+Тебе будет дан текст из документа по программе государственной поддержки.
+Твоя задача - написать 3 вопроса, на которые данный текст отвечает лучше всего.
+ВАЖНО: вопросы должны быть простые, но не слишком короткие. Вопросы не должны быть слишком конкретные
+
+Текст: {text}
+Вопрос 1:
+Вопрос 2:
+Вопрос 3: 
+"""
+
 qa_template = llama_index_prompt_tmpl(template=QA_TMPL, prompt_type='text_qa')
 refine_template = llama_index_prompt_tmpl(template=REFINE_TMPL, prompt_type='refine')
 
@@ -110,4 +121,6 @@ program_name_template = langchain_prompt_tmpl.from_template(PROGRAM_NAME_PROMPT_
 
 query_rewriting_prompt_tmpl = langchain_prompt_tmpl.from_template(QUERY_REWRITING_TMPL)
 query_rewriting_no_doc_info_prompt_tmpl = langchain_prompt_tmpl.from_template(QUERY_REWRITING_NO_DOC_INFO_TMPL)
+
+synth_questions_prompt = langchain_prompt_tmpl.from_template(SYNTH_QUESTIONS_TMPL)
 

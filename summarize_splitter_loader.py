@@ -40,7 +40,6 @@ def add_lines(parents_datas):
             cur_line = cur_line + len(parent_data['text'].split('\n'))
     return parents_datas
 
-
 dir = '/программы_для_тестов'
 files = os.listdir(dir)
 

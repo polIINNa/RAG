@@ -30,9 +30,9 @@ index = VectorStoreIndex.from_vector_store(vector_store=vector_store,
 
 if __name__ == '__main__':
     dir = 'chunks_questions'
-    # files = os.listdir(dir)
-    files = ['ПП 26.json']
+    files = os.listdir(dir)
     for file_name in files:
+        print(f'ГЕНЕРАЦИЯ ДАТАСЕТА ДЛЯ РЕРАНКЕРА ДЛЯ ФАЙЛА {file_name}')
         rerank_file_dataset = []
         program_name = get_program_name_from_file(file_name=file_name)
         base_retriever = index.as_retriever(similarity_top_k=10,
@@ -42,20 +42,21 @@ if __name__ == '__main__':
             data = json.load(f)
         file_questions = []
         for chunk in data:
-            for question in chunk['questions']:
-                retrieved_nodes = base_retriever.retrieve(question)
-                output_data = []
-                for node in retrieved_nodes:
-                    if node.text.replace('\n', ' ') == chunk['chunk'].replace('\n', ''):
-                        output_data.append({'node_text': node.text,
-                                            'node_relevancy': 1,
-                                            'node_page': node.metadata['page_number']})
-                    else:
-                        output_data.append({'node_text': node.text,
-                                            'node_relevancy': 0,
-                                            'node_page': node.metadata['page_number']})
-                rerank_file_dataset.append({'question': question,
-                                            'relevant_chunk': chunk['chunk'],
-                                            'data': output_data})
+            if chunk['questions'] != None:
+                for question in chunk['questions']:
+                    retrieved_nodes = base_retriever.retrieve(question)
+                    output_data = []
+                    for node in retrieved_nodes:
+                        if node.text.replace('\n', ' ') == chunk['chunk'].replace('\n', ' '):
+                            output_data.append({'node_text': node.text,
+                                                'node_relevancy': 1,
+                                                'node_page': node.metadata['page_number']})
+                        else:
+                            output_data.append({'node_text': node.text,
+                                                'node_relevancy': 0,
+                                                'node_page': node.metadata['page_number']})
+                    rerank_file_dataset.append({'question': question,
+                                                'relevant_chunk': chunk['chunk'],
+                                                'data': output_data})
         with open(f'synth_data/{file_name}', 'w', encoding='utf-8') as f:
             json.dump(rerank_file_dataset, f, indent=4)

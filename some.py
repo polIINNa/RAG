@@ -1,9 +1,10 @@
 import json
 
 if __name__ == '__main__':
-    with open('chunks_questions/ПП 26.json', 'r', encoding='utf-8') as f:
+    with open('synth_data/ПП 574.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
-    test = data[0]
-    print(test['questions'])
-
+    for d in data:
+        print(d['relevant_chunk'])
+        print(d['question'], '\n')
+        print(d['data'], '\n\n')
 

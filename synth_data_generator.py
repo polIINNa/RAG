@@ -2,8 +2,6 @@ import json
 import os
 from typing import List
 
-from pdf_parser import PdfMinerParser
-import summarize_splitter
 from pipeline.llm_ident import gpt_llm
 from pipeline.prompts import synth_questions_prompt
 
@@ -19,31 +17,24 @@ def create_synth_questions(text: str) -> List[str]:
 
 
 if __name__ == '__main__':
-    output = []
-    numb_questions = 0
-    with open('chunks.json', 'r') as f:
-        data = json.load(f)
-    for file_data in data:
-        print(f'ОБРАБОТКА ФАЙЛА {file_data["file_name"]}')
-        file_questions = []
-        for chunk_data in file_data['chunks']:
+    dir = 'summarize_data/chunks'
+    files = os.listdir(dir)
+    for file in files:
+        print(f'ОБРАБОТКА ФАЙЛА {file}')
+        output = []
+        with open(f'{dir}/{file}', encoding='utf-8') as f:
+            file_chunks = json.load(f)
+        for chunk in file_chunks:
             try:
-                chunk_questions = create_synth_questions(text=chunk_data['text'])
-                numb_questions += len(chunk_questions)
-                file_questions.append({'chunk': chunk_data['text'],
-                                       'questions': chunk_questions})
-                print(chunk_data['text'].replace('\n', ' '))
-                print(chunk_questions)
-                print('\n')
+                questions = create_synth_questions(text=chunk['text'])
+                output.append({'chunk': chunk['text'],
+                               'questions': questions})
             except:
                 print('ПРИ ГЕНЕРАЦИИ/ВАЛИДАЦИИ ВОПРОСОВ ПРОИЗОШЛА ОШИБКА')
-                file_questions.append({'chunk': chunk_data['text'],
-                                       'questions': 'null'})
-        print('ВОПРОСЫ СГЕНЕРИРОВАНЫ')
-        output.append({'file_name': file_data['file_name'],
-                       'data': file_questions})
-    print(numb_questions)
-    with open('chunks_questions.json', 'w') as f:
-        json.dump(output, f, indent=4)
+                output.append({'chunk': chunk['text'],
+                               'questions': None})
+        print('ЗАПИСЬ ВОПРОСОВ В ФАЙЛ')
+        with open(f'C:/Users/ADM/OneDrive/Desktop/RAG_gospodderzka/chunks_questions/{file}', 'w', encoding='utf-8') as f:
+            json.dump(output, f, indent=4)
 
 

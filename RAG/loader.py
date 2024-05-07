@@ -10,7 +10,7 @@ from llama_index.legacy.indices import VectorStoreIndex
 from llama_index.legacy.schema import Document
 from bs4 import BeautifulSoup
 
-from llm_ident import giga_llama_llm
+from RAG.pipeline.llm_ident import giga_llama_llm
 from RAG.vectore_stores import ChromaVS
 
 

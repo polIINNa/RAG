@@ -5,8 +5,8 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from llama_index.legacy.response_synthesizers import get_response_synthesizer, ResponseMode
 
 from RAG.vectore_stores import ChromaVS
-from RAG.llm_ident import giga_llama_llm, giga_langchain_llm
-from RAG.prompts import qa_template, refine_template, program_name_template
+from RAG.pipeline.llm_ident import giga_llama_llm, giga_langchain_llm
+from RAG.pipeline.prompts import qa_template, refine_template, program_name_template
 
 
 class RAG:

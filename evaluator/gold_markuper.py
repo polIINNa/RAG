@@ -2,9 +2,7 @@ import json
 import os
 import math
 
-from tqdm import tqdm
-
-from pdf_parser import PdfMinerParser
+from pipeline.pdf_parser import PdfMinerParser
 
 
 with open("C:/Users/ADM/OneDrive/Desktop/RAG/tagme_markup_no_html.json", 'r', encoding='utf-8') as f:

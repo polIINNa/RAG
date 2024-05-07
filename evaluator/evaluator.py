@@ -88,9 +88,12 @@ def get_len_gold_context(gold_context):
 
 
 def get_len_context(context):
+    """
+    Получить размер контекста (всех чанков
+    """
     len_context = 0
-    for node in context:
-        len_context += node.metadata['end_line'] - node.metadata['start_line'] + 1
+    for chunk in context:
+        len_context += chunk['context_lines']['end_line'] - chunk['context_lines']['start_line'] + 1
     return len_context
 
 
@@ -99,25 +102,26 @@ def eval_context(context, gold_context):
     Получить оценку по одному вопросу
     :param context: контекст по вопросу
     :param gold_context: голд контекст по вопросу
-    :return: метрика recall
+    :return: метрик recall и precision
     """
     numb_match_lines = 0
     len_gold_context = get_len_gold_context(gold_context=gold_context)
     len_context = get_len_context(context=context)
     if len_gold_context != 0:
         for page in gold_context:
-            for node in context:
-                if node['page_number'] == page['page_number']:
-                    node_lines = set([line for line in range(node['context_lines']['start_line'], node['context_lines']['end_line']+1)])
+            for chunnk in context:
+                if chunnk['page_number'] == page['page_number']:
+                    chunk_lines = set([line for line in range(chunnk['context_lines']['start_line'], chunnk['context_lines']['end_line']+1)])
                     for box in page['context_lines']:
                         box_lines = set([line for line in range(box['start_line'], box['end_line']+1)])
-                        numb_match_lines += len(box_lines.intersection(node_lines))
+                        numb_match_lines += len(box_lines.intersection(chunk_lines))
         recall = numb_match_lines/len_gold_context
         precision = numb_match_lines/len_context
         context_eval = {'len_gold_context': len_gold_context,
+                        'len_context': len_context,
                         'numb_match_lines': numb_match_lines,
-                        'context_recall': recall,
-                        'context_precision': precision}
+                        'recall': recall,
+                        'precision': precision}
         return context_eval
 
 
@@ -142,7 +146,7 @@ with open('C:/Users/ADM/OneDrive/Desktop/RAG/gold_markup.json', 'r', encoding='u
 with open('C:/Users/ADM/OneDrive/Desktop/RAG/answer_gold_markup.json', 'r', encoding='utf-8') as f:
     answer_gold_markup = json.load(f)
 
-dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info_rephrase'
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info'
 files_res = ['1598.json', '2221.json', '574.json']
 if __name__ == '__main__':
     for file in files_res:
@@ -174,6 +178,6 @@ if __name__ == '__main__':
                               'llm_response': res['response'],
                               'answer_correctness_rewrite': eval_answer_rewrite,
                               'nodes_score': res['nodes_score']})
-        with open(f'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info_rephrase/eval_results/{file}', 'w', encoding='utf-8') as f:
+        with open(f'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info/eval_results/{file}', 'w', encoding='utf-8') as f:
             json.dump(file_eval, f, ensure_ascii=False, indent=4)
 

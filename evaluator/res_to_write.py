@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 
-dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info_rephrase/eval_results'
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info/eval_results'
 files = os.listdir(dir)
 
 program_names, origin_questions, rewrite_questions, contexts, nodes_scoress, llm_responses, \
@@ -30,8 +30,8 @@ if __name__ == '__main__':
             if res['context_eval'] is not None:
                 len_gold_contexts.append(res['context_eval']['len_gold_context'])
                 numb_match_liness.append(res['context_eval']['numb_match_lines'])
-                context_recalls.append(res['context_eval']['context_recall'])
-                context_precisions.append(res['context_eval']['context_precision'])
+                context_recalls.append(res['context_eval']['recall'])
+                context_precisions.append(res['context_eval']['precision'])
             else:
                 len_gold_contexts.append('null')
                 numb_match_liness.append('null')
@@ -52,7 +52,7 @@ if __name__ == '__main__':
                  'Answer correctness (rewrite)': answer_correctnesss}
 
     df = pd.DataFrame(res2write)
-    df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting_no_doc_info_rephrase.xlsx')
+    df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting_no_doc_info.xlsx')
 
 
 

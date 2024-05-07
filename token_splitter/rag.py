@@ -22,7 +22,7 @@ def get_program_name_from_file(file_name):
     return file_name.split('.')[0].split(' ')[1]
 
 
-db = chromadb.PersistentClient(path='../VDB_new_splitter')
+db = chromadb.PersistentClient(path='../db/VDB')
 chroma_collection = db.get_collection(name="token_splitter")
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')

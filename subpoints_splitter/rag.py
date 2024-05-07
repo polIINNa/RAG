@@ -22,7 +22,7 @@ def get_program_name_from_file(file_name):
     return file_name.split('.')[0].split(' ')[1]
 
 
-db = chromadb.PersistentClient(path="../VDB_new_splitter")
+db = chromadb.PersistentClient(path='../db/VDB')
 chroma_collection = db.get_collection(name="subpoints")
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
@@ -53,7 +53,7 @@ if __name__ == '__main__':
                                                                                                   value=program_name)]))
             print('СТАРТ ПОИСКА РЕЛЕВАНТНЫХ ЧАНКОВ')
             retrieved_nodes = base_retriever.retrieve(question)
-            with open('parents.json', 'r', encoding='utf-8') as f:
+            with open('C:/Users/ADM/OneDrive/Desktop/RAG_gospodderzka/db/subpoints_parents.json', 'r', encoding='utf-8') as f:
                 parents = json.load(f)
             parent_nodes_ids = []
             for node in retrieved_nodes:

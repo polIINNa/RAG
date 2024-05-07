@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 
-dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter/eval_results'
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/token_splitter/eval_results'
 files = os.listdir(dir)
 
 program_names, questions, contexts, nodes_scoress, llm_responses, \
@@ -57,7 +57,7 @@ if __name__ == '__main__':
                  'Answer correctness': answer_correctnesss}
 
     df = pd.DataFrame(res2write)
-    df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/summarize_splitter.xlsx')
+    df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/token_splitter.xlsx')
 
 
 

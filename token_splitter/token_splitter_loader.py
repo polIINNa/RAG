@@ -43,7 +43,7 @@ files = os.listdir(dir)
 
 parser = PdfMinerParser()
 
-db = chromadb.PersistentClient(path='../VDB_new_splitter')
+db = chromadb.PersistentClient(path='../db/VDB')
 collection = db.get_or_create_collection(name='token_splitter')
 
 token_splitter = TokenTextSplitter(chunk_size=512, chunk_overlap=0)

@@ -1,6 +1,7 @@
 import os
 
 import httpx
+import openai
 from dotenv import load_dotenv
 from langchain_community.chat_models import GigaChat
 from langchain_openai import ChatOpenAI
@@ -19,11 +20,13 @@ giga_langchain_llm_strict = GigaChat(base_url=base_url, auth_url=auth_url, scope
                                      verify_ssl_certs=False, model=os.getenv('GIGA_MODEL'),
                                      profanity_check=False, temperature=0.0000001)
 
-# giga_langchain_llm_soft = GigaChat(base_url=base_url, auth_url=auth_url, scope=scope, credentials=credentials,
-#                                    verify_ssl_certs=False, model=os.getenv('GIGA_MODEL'),
-#                                    profanity_check=False, temperature=1)
+giga_langchain_llm_soft = GigaChat(base_url=base_url, auth_url=auth_url, scope=scope, credentials=credentials,
+                                   verify_ssl_certs=False, model=os.getenv('GIGA_MODEL'),
+                                   profanity_check=False)
 
 giga_llama_llm = LangChainLLM(llm=giga_langchain_llm_strict)
 
-gpt_llm = ChatOpenAI(model_name="gpt-4", http_client=httpx.Client(proxies=os.getenv('OPENAI_PROXY')),
+# http_client = httpx.Client(proxies=os.getenv('OPENAI_PROXY'))
+gpt_llm = ChatOpenAI(model_name="gpt-3.5-turbo-1106", http_client=httpx.Client(proxies=os.getenv('OPENAI_PROXY')),
                      openai_api_key=os.getenv('OPENAI_API_KEY'))
+

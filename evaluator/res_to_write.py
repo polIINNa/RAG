@@ -1,15 +1,19 @@
+"""
+Записать результаты расчета оценки в Эксель файл
+"""
+
 import json
 import os
 
 import pandas as pd
 
 
-dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting/no_doc_info/eval_results'
+dir = 'C:/Users/ADM/OneDrive/Desktop/RAG/prompt2_reranked/eval_res'
 files = os.listdir(dir)
 
 program_names, origin_questions, rewrite_questions, contexts, nodes_scoress, llm_responses, \
 len_gold_contexts, numb_match_liness, context_recalls, avg_nodes_scoress, \
-answer_correctnesss = [], [], [], [], [], [], [], [], [], [], []
+answer_correctnesss, context_precisions = [], [], [], [], [], [], [], [], [], [], [], []
 
 if __name__ == '__main__':
     for file_name in files:
@@ -23,18 +27,20 @@ if __name__ == '__main__':
             rewrite_questions.append(res['rewrite question'])
             contexts.append(res['text'])
             llm_responses.append(res['llm_response'])
-            answer_correctnesss.append(res['answer_correctness_rewrite'])
+            # answer_correctnesss.append(res['answer_correctness_rewrite'])
             nodes_scoress.append(res['nodes_score'])
             avg_nodes_scoress.append(sum(res['nodes_score'])/len(res['nodes_score']))
 
             if res['context_eval'] is not None:
                 len_gold_contexts.append(res['context_eval']['len_gold_context'])
                 numb_match_liness.append(res['context_eval']['numb_match_lines'])
-                context_recalls.append(res['context_eval']['context_recall'])
+                context_recalls.append(res['context_eval']['recall'])
+                context_precisions.append(res['context_eval']['precision'])
             else:
                 len_gold_contexts.append('null')
                 numb_match_liness.append('null')
                 context_recalls.append('null')
+                context_precisions.append('null')
 
     res2write = {'Номмер программы': program_names,
                  'Оригинальный вопрос': origin_questions,
@@ -46,10 +52,8 @@ if __name__ == '__main__':
                  'Число предложений в голд контексте': len_gold_contexts,
                  'Число мэтча предложений и голд контекста': numb_match_liness,
                  'Recall': context_recalls,
-                 'Answer correctness (rewrite)': answer_correctnesss}
+                 'Precision': context_precisions}
+                 # 'Answer correctness (rewrite)': answer_correctnesss}
 
     df = pd.DataFrame(res2write)
-    df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/summarize_query_rewriting_no_doc_info.xlsx')
-
-
-
+    df.to_excel('C:/Users/ADM/OneDrive/Desktop/RAG/prompt2_reranked.xlsx')

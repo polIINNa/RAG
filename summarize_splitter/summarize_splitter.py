@@ -2,7 +2,7 @@ import re
 
 from langchain_core.prompts import PromptTemplate
 
-from pipeline.llm_ident import giga_langchain_llm
+from pipeline.llm_ident import giga_langchain_llm_strict
 
 
 MAX_NODE_LENGHT = 1024
@@ -19,7 +19,7 @@ def _summarize(text):
     """
     text = text.replace('\n', ' ')
     prompt = PromptTemplate.from_template(template=query_tmpl_str)
-    chain = prompt | giga_langchain_llm
+    chain = prompt | giga_langchain_llm_strict
     return chain.invoke({'text': text}).content
 
 

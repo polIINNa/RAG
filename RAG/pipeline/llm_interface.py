@@ -7,7 +7,6 @@ from langchain_openai import ChatOpenAI
 from llama_index.legacy.llms import LangChainLLM
 
 
-
 load_dotenv()
 
 base_url = 'https://gigachat.devices.sberbank.ru/api/v1'
@@ -23,7 +22,7 @@ giga_langchain_llm_strict = GigaChat(base_url=base_url, auth_url=auth_url, scope
 #                                    verify_ssl_certs=False, model=os.getenv('GIGA_MODEL'),
 #                                    profanity_check=False, temperature=1)
 
-giga_llama_llm = LangChainLLM(llm=giga_langchain_llm_strict)
-
-gpt_llm = ChatOpenAI(model_name="gpt-4", http_client=httpx.Client(proxies=os.getenv('OPENAI_PROXY')),
-                     openai_api_key=os.getenv('OPENAI_API_KEY'))
+# giga_llama_llm = LangChainLLM(llm=giga_langchain_llm_strict)
+#
+# gpt_llm = ChatOpenAI(model_name="gpt-4", http_client=httpx.Client(proxies=os.getenv('OPENAI_PROXY')),
+#                      openai_api_key=os.getenv('OPENAI_API_KEY'))

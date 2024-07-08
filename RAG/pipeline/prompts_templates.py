@@ -73,14 +73,6 @@ REPHRASE_PROMPT_TMPL = """
 
 """
 
-SYNT_QUESTION_TMPL = """
-Тебе будет дан текст. Твоя задача - сгенерировать 3 вопроса, на которые данный текст может лучше всего ответить.
-Текст: {text}
-Вопрос 1:
-Вопрос 2: 
-Вопрос 3: 
-"""
-
 qa_template = llama_index_prompt_tmpl(template=QA_TEMPLATE_TEXT, prompt_type='text_qa')
 refine_template = llama_index_prompt_tmpl(template=REFINE_PROMPT_TEMPLATE_TEXT, prompt_type='refine')
 program_name_template = langchain_prompt_tmpl.from_template(PROGRAM_NAME_PROMPT_TMPL_STR)

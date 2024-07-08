@@ -63,14 +63,17 @@ class Splitter:
         print('Создание чанков')
         for par in tqdm(paragraphs):
             parent_id = f'{self.file_id}-{id}'
-            summarize_par = self._summarize(text=par)
-            chunk = {
-                'text': summarize_par,
-                'parent_id': parent_id,
-                'parent_text': par,
-            }
-            chunks.append(chunk)
-            id += 1
+            try:
+                summarize_par = self._summarize(text=par)
+                chunk = {
+                    'text': summarize_par,
+                    'parent_id': parent_id,
+                    'parent_text': par,
+                }
+                chunks.append(chunk)
+                id += 1
+            except:
+                pass
         return chunks
 
 
@@ -123,7 +126,7 @@ class Loader:
             for chunk in chunks:
                 parent = {'id': chunk['parent_id'],
                           'text': chunk['parent_text']}
-                node_id = f'{program_number}={id}'
+                node_id = f'{program_number}-{id}'
                 node = TextNode(text=chunk['text'], id_=node_id, metadata={'program_number': program_number,
                                                                            'program_name': program_name,
                                                                            'parent_id': chunk['parent_id']})

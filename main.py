@@ -20,7 +20,7 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    with open('/Users/21109090/Desktop/RAG_gospodderzka/RAG/available_programs.json', 'r') as f:
+    with open('available_programs.json', 'r') as f:
         available_programs = json.load(f)
     await message.answer(f"Привет, <b>{message.from_user.first_name}</b>!\n"
                          f"Это бот, который отвечает на вопросы по документам по господдержке\n"

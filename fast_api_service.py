@@ -5,7 +5,7 @@ from fastapi import FastAPI, status
 from RAG.rag import RAG
 from fast_api.message import Message
 
-with open('/Users/21109090/Desktop/RAG_gospodderzka/RAG/available_programs.json', 'r') as f:
+with open('available_programs.json', 'r') as f:
     available_programs = json.load(f)
 
 app = FastAPI(description=f"Это сервис, который отвечает на вопросы по документам по господдержке.\n"

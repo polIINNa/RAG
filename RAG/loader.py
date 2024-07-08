@@ -115,7 +115,7 @@ class Loader:
         file_name = self.fpath.split('/')[-1].split('.')[0]
         program_number = self._get_program_number(file_name=file_name)
         program_name = self._get_program_name(program_text='text_from_gos_program')
-        with open('/Users/21109090/Desktop/RAG_gospodderzka/RAG/available_programs.json', 'r') as f:
+        with open('available_programs.json', 'r') as f:
             available_programs = json.load(f)
         if program_number not in available_programs['available_program_numbers']:
             chunks = Splitter(documents=documents, file_id=program_number).split()
@@ -146,7 +146,7 @@ class Loader:
             # Сохраняем название и номер нового загруженного документа
             available_programs['available_program_numbers'].append(program_number)
             available_programs['available_program_names'].append(program_name)
-            with open('/Users/21109090/Desktop/RAG_gospodderzka/RAG/available_programs.json', 'w') as f:
+            with open('available_programs.json', 'w') as f:
                 json.dump(available_programs, f, ensure_ascii=False)
         else:
             print(f'Документ {file_name} уже загружен в базу данных')

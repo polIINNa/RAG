@@ -1,11 +1,15 @@
-from fastapi import FastAPI, status, HTTPException
+import json
+
+from fastapi import FastAPI, status
 
 from RAG.rag import RAG
 from fast_api.message import Message
-from programs import AVAILABLE_PROGRAMS
+
+with open('/Users/21109090/Desktop/RAG_gospodderzka/RAG/available_programs.json', 'r') as f:
+    available_programs = json.load(f)
 
 app = FastAPI(description=f"Это сервис, который отвечает на вопросы по документам по господдержке.\n"
-                          f"Вот список доступных документов: {AVAILABLE_PROGRAMS}.\n"
+                          f"Вот список доступных документов: {available_programs['available_program_numbers']}.\n"
                           f"<b>!ВАЖНО!</b>: на текущий момент я могу отвечать на вопрос, "
                           f"только если в нем есть номер постановления, например: "
                           f"<i>'В чем суть постановления 295?'</i>")
@@ -20,14 +24,14 @@ async def healthcheck():
 @app.post("/api/v1/question", response_model=Message, status_code=status.HTTP_200_OK,
           summary='Вопрос по документам по господдержке')
 async def parse_question(message: Message):
-    rag = RAG()
-    program_number = rag.get_program_number(query=message.body)
-    if program_number == '-1':
-        return Message(body=f"Пока реализация такова, что в вопросе должен присутствовать номер документа. "
-                            "Введите вопрос с номером постановления")
-    elif program_number not in AVAILABLE_PROGRAMS:
-        return Message(body=f"Таких постановлений нет в базе. Вот список доступных: {AVAILABLE_PROGRAMS}")
+    rag_gs = RAG()
+    gs_program = rag_gs.get_gs_program(query=message.body)
+    if gs_program is None:
+        return Message(body='Не удалось определить программу господдержики, в которой надо искать ответ на вопрос')
     else:
-        addition = f"Постановления, в которых происходил поиск ответа на вопрос: {program_number}."
-        response = await rag.process(query=message.body)
-        return Message(body=f"{response} {addition}")
+        if gs_program[1] is False:
+            return Message(body=f'Определенная из вопроса программа: <b>{gs_program[0]}</b>. К сожалению, данной программы нет в базе знаний, обратитесь к команде проекта.')
+        else:
+            addition = f"Постановление, в котором происходил поиск ответа на вопрос: {gs_program[0]}."
+            rag_answer = rag_gs.rag(query=message.text, gs_program_name=gs_program[0])
+            return Message(body=f'<b>Ответ на вопрос</b>\n{rag_answer}. {addition}')

@@ -16,11 +16,12 @@ load_dotenv()
 TOKEN = os.getenv('TELEGRAM_API_TOKEN')
 
 dp = Dispatcher()
+rag_gs = RAG()
 
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    with open('available_programs.json', 'r') as f:
+    with open('RAG/available_programs.json', 'r') as f:
         available_programs = json.load(f)
     await message.answer(f"Привет, <b>{message.from_user.first_name}</b>!\n"
                          f"Это бот, который отвечает на вопросы по документам по господдержке\n"
@@ -30,10 +31,7 @@ async def command_start_handler(message: Message) -> None:
 
 @dp.message()
 async def rag_handler(message: Message) -> None:
-    answer = await message.answer('Запускаю обработку вопроса')
     if message.text is not None and message.from_user is not None:
-        rag_gs = RAG()
-        await answer.delete()
         answer = await message.answer('Определяю подходящую программы господдержки')
         gs_program = rag_gs.get_gs_program(query=message.text)
         await answer.delete()

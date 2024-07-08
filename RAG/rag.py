@@ -80,7 +80,7 @@ class RAG:
         retriever = self.search_index.as_retriever(similarity_top_k=k,
                                                    filters=MetadataFilters(filters=exact_match_filters))
         retrieved_nodes = retriever.retrieve(query)
-        with open('db/parents.json', 'r') as f:
+        with open('RAG/db/parents.json', 'r') as f:
             parents = json.load(f)
         extracted_passages = []
         for node in retrieved_nodes:
@@ -108,7 +108,7 @@ class RAG:
         :param query: вопрос пользователя
         :return: кортеж с определенным номером или названием программы господдержки и флагом про то, есть ли данная программы в бд или нет
         """
-        with open('available_programs.json', 'r') as f:
+        with open('RAG/available_programs.json', 'r') as f:
             available_programs = json.load(f)
         program_number = self._get_program_number_from_query(query=query)
         if program_number != '-1':

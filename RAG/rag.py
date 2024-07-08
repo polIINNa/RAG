@@ -17,7 +17,7 @@ class RAG:
     """ RAG - класс для поиска контекста по вопросу и генерации ответа """
     def __init__(self):
         self.embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
-        self.db_conn = chromadb.PersistentClient(path='/Users/21109090/Desktop/RAG_gospodderzka/RAG/db/VDB')
+        self.db_conn = chromadb.PersistentClient(path='RAG/db/VDB')
         self.collection = self.db_conn.get_or_create_collection(name='main')
         self.vector_store = ChromaVectorStore(chroma_collection=self.collection)
         self.service_context = ServiceContext.from_defaults(embed_model=self.embed_model, llm=gigachat)
@@ -48,6 +48,7 @@ class RAG:
 
     @staticmethod
     def _map_program_name(program_name_from_query: str) -> str | None:
+        #TODO: подумать над название get_db_program_name()
         """
         Смэтчить название программы господдержки из вопроса с названием программы, которое хранится в базе данных
         :param program_name_from_query: название программы господдержки, полученное из вопроса
@@ -70,7 +71,7 @@ class RAG:
         """
         Найти контекст, в котором содержится релевантная вопросу информация
         :param query: вопрос пользователя
-        :param filters: фильтры по метадате в чанков
+        :param filters: фильтры по метадате чанков
         :return: найденные чанки (контекст)
         """
         exact_match_filters = []

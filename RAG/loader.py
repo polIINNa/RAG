@@ -84,29 +84,29 @@ class Loader:
     def __init__(self, fpath: str):
         self.fpath = fpath
         self.embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
-        self.db_conn = chromadb.PersistentClient(path='db/VDB')
+        self.db_conn = chromadb.PersistentClient(path='RAG/db/VDB')
         self.collection = self.db_conn.get_or_create_collection(name='main')
         self.storage_context = StorageContext.from_defaults(vector_store=ChromaVectorStore(chroma_collection=self.collection))
         self.service_context = ServiceContext.from_defaults(embed_model=self.embed_model, llm=gigachat)
 
     @staticmethod
     def _get_program_number(file_name: str) -> str:
+        #TODO: сделать определение номера программы господдержки из текста программы, а не названия файла (задача XOPS360-2306)
         """
         Получить номер программы господдержки из документа
         :param file_name: название файла
         :return: номер программы господдержки
         """
-        #TODO: сделать определение номера программы господдержки из текста программы, а не названия файла (задача XOPS360-2306)
         return file_name.split('ПП ')[1]
 
     @staticmethod
     def _get_program_name(program_text: str) -> str:
+        #TODO: получить название/описание программы господдржки с помощью промпта по задаче Юли
         """
         Получить назване/описание программы господдержки из текста программы
         :param program_text: текст из программы господдержки, из которого определяется название/описание программы
         :return: название/описание программы господдержки
         """
-        #TODO: получить название/описание программы господдржки с помощью промпта по задаче Юли
         return 'F'
 
     def load(self):

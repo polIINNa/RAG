@@ -1,5 +1,6 @@
 import json
 import re
+from pathlib import Path
 from typing import List, Dict
 
 from tqdm import tqdm
@@ -81,10 +82,13 @@ class Loader:
     """ Загрузчик документа программы господдержки в базу данных """
     #TODO: подумать, нужно ли избавиться ОТ Llama-index и перейти на Elasticsearch (да, моя хотелка)
     #TODO: подумать, нужно ли сделать загрузку других расширений кроме pdf
+
+    PATH_TO_DB_DIR = Path(__file__).parent / 'db'
+
     def __init__(self, fpath: str):
         self.fpath = fpath
         self.embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
-        self.db_conn = chromadb.PersistentClient(path='RAG/db/VDB')
+        self.db_conn = chromadb.PersistentClient(path=str(self.PATH_TO_DB_DIR / 'VDB'))
         self.collection = self.db_conn.get_or_create_collection(name='main')
         self.storage_context = StorageContext.from_defaults(vector_store=ChromaVectorStore(chroma_collection=self.collection))
         self.service_context = ServiceContext.from_defaults(embed_model=self.embed_model, llm=gigachat)
@@ -118,7 +122,7 @@ class Loader:
         file_name = self.fpath.split('/')[-1].split('.')[0]
         program_number = self._get_program_number(file_name=file_name)
         program_name = self._get_program_name(program_text='text_from_gos_program')
-        with open('RAG/available_programs.json', 'r') as f:
+        with open('available_programs.json', 'r') as f:
             available_programs = json.load(f)
         if program_number not in available_programs['available_program_numbers']:
             chunks = Splitter(documents=documents, file_id=program_number).split()
@@ -139,17 +143,17 @@ class Loader:
             print('Загрузка родителей в базу типа key-value (пока это json)')
             #TODO: подумать, надо ли внедрять key-value бд для хранения parent-чанков или JSON хватает
             try:
-                with open('RAG/db/parents.json', 'r') as f:
+                with open(self.PATH_TO_DB_DIR / 'parents.json', 'r') as f:
                     all_parents = json.load(f)
                 all_parents.extend(parents)
             except:
                 all_parents = parents
-            with open('RAG/db/parents.json', 'w') as f:
+            with open(self.PATH_TO_DB_DIR / 'parents.json', 'w') as f:
                 json.dump(all_parents, f, ensure_ascii=False)
             # Сохраняем название и номер нового загруженного документа
             available_programs['available_program_numbers'].append(program_number)
             available_programs['available_program_names'].append(program_name)
-            with open('RAG/available_programs.json', 'w') as f:
+            with open('available_programs.json', 'w') as f:
                 json.dump(available_programs, f, ensure_ascii=False)
         else:
             print(f'Документ {file_name} уже загружен в базу данных')

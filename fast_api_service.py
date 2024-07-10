@@ -1,11 +1,13 @@
 import json
+from pathlib import Path
 
 from fastapi import FastAPI, status
 
 from RAG.rag import RAG
 from fast_api.message import Message
 
-with open('available_programs.json', 'r') as f:
+
+with open(Path(__file__).parent / 'RAG' / 'available_programs.json', 'r') as f:
     available_programs = json.load(f)
 
 app = FastAPI(description=f"Это сервис, который отвечает на вопросы по документам по господдержке.\n"

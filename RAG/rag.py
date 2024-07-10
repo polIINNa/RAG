@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import List, Dict, Tuple
 import json
 
@@ -15,9 +16,12 @@ from RAG.pipeline.prompts_templates import QUERY_REWRITING_NO_DOC_INFO_TMPL, QA_
 
 class RAG:
     """ RAG - класс для поиска контекста по вопросу и генерации ответа """
+
+    PATH_TO_DB_DIR = Path(__file__).parent / 'db'
+
     def __init__(self):
         self.embed_model = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
-        self.db_conn = chromadb.PersistentClient(path='RAG/db/VDB')
+        self.db_conn = chromadb.PersistentClient(path=str(self.PATH_TO_DB_DIR / 'VDB'))
         self.collection = self.db_conn.get_or_create_collection(name='main')
         self.vector_store = ChromaVectorStore(chroma_collection=self.collection)
         self.service_context = ServiceContext.from_defaults(embed_model=self.embed_model, llm=gigachat)
@@ -80,7 +84,7 @@ class RAG:
         retriever = self.search_index.as_retriever(similarity_top_k=k,
                                                    filters=MetadataFilters(filters=exact_match_filters))
         retrieved_nodes = retriever.retrieve(query)
-        with open('RAG/db/parents.json', 'r') as f:
+        with open(self.PATH_TO_DB_DIR / 'parents.json', 'r') as f:
             parents = json.load(f)
         extracted_passages = []
         for node in retrieved_nodes:
@@ -108,7 +112,7 @@ class RAG:
         :param query: вопрос пользователя
         :return: кортеж с определенным номером или названием программы господдержки и флагом про то, есть ли данная программы в бд или нет
         """
-        with open('RAG/available_programs.json', 'r') as f:
+        with open('available_programs.json', 'r') as f:
             available_programs = json.load(f)
         program_number = self._get_program_number_from_query(query=query)
         if program_number != '-1':
